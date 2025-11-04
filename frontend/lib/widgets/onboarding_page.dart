@@ -68,6 +68,26 @@ class OnboardingPage extends StatelessWidget {
 
   /// Builds the illustration section
   /// Uses icon placeholder - can be replaced with Lottie when files are added
+  /// 
+  /// Alternative implementation for Lottie animations:
+  /// When lottie files are added, you can check lottiePath and use Lottie.asset
+  /// Example:
+  /// ```dart
+  /// if (lottiePath != null) {
+  ///   return Container(
+  ///     width: 250,
+  ///     height: 250,
+  ///     child: Lottie.asset(
+  ///       lottiePath!,
+  ///       fit: BoxFit.contain,
+  ///       errorBuilder: (context, error, stackTrace) {
+  ///         return _buildIconPlaceholder();
+  ///       },
+  ///     ),
+  ///   );
+  /// }
+  /// return _buildIconPlaceholder();
+  /// ```
   Widget _buildIllustration() {
     return Container(
       width: 250,
@@ -106,22 +126,6 @@ class OnboardingPage extends StatelessWidget {
         ),
       ),
     );
-    
-    // Alternative: Use Lottie animation (uncomment when lottie files are added)
-    // if (lottiePath != null) {
-    //   return Container(
-    //     width: 250,
-    //     height: 250,
-    //     child: Lottie.asset(
-    //       lottiePath!,
-    //       fit: BoxFit.contain,
-    //       errorBuilder: (context, error, stackTrace) {
-    //         return _buildIconPlaceholder();
-    //       },
-    //     ),
-    //   );
-    // }
-    // return _buildIconPlaceholder();
   }
 
   /// Builds the glassmorphic content card with title and description
