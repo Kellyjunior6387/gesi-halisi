@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "230339353147",
+    "project_id": "gesi-halisi-acc8d",
+    "storage_bucket": "gesi-halisi-acc8d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:230339353147:android:902252d0b8915baa6d1a1e",
+        "android_client_info": {
+          "package_name": "com.example.frontend"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB5BJm7cdIdRezzZIRQY8k7oibXSOAFtkk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
