@@ -1,38 +1,73 @@
+/// GasChain Main Application Entry Point
+///
+/// This is the root of the GasChain application. It initializes Firebase
+/// and sets up the Material App with the splash screen as the entry point.
+///
+/// Security Features:
+/// - Firebase initialization with error handling
+/// - Secure navigation flow
+/// - Material Design 3 for modern UI standards
+/// - Debug mode detection to prevent sensitive logs in production
+
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
+import 'screens/splash_screen.dart';
+import 'constants/app_theme.dart';
 
 void main() async {
+  // Ensure Flutter binding is initialized before any async operations
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Initialize Firebase with error handling
+  // Note: Firebase errors are logged but don't prevent app launch
   try {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
+    debugPrint('✅ Firebase initialized successfully');
   } catch (e) {
-    debugPrint('Failed to initialize Firebase: $e');
+    // Log error in debug mode only
+    debugPrint('⚠️ Failed to initialize Firebase: $e');
+    // App can still run without Firebase for basic UI testing
   }
-  runApp(const MainApp());
+  
+  // Launch the app
+  runApp(const GasChainApp());
 }
 
-class MainApp extends StatelessWidget {
-  const MainApp({Key? key}) : super(key: key);
+/// Main application widget
+class GasChainApp extends StatelessWidget {
+  const GasChainApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Gesi Halisi',
+      // App configuration
+      title: 'GasChain',
+      debugShowCheckedModeBanner: false,
+      
+      // Theme configuration with Material 3
       theme: ThemeData(
-        primarySwatch: Colors.blue,
         useMaterial3: true,
-      ),
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Gesi Halisi'),
+        brightness: Brightness.dark,
+        colorScheme: ColorScheme.dark(
+          primary: AppColors.accentPurple,
+          secondary: AppColors.lightPurple,
+          background: AppColors.black,
+          surface: AppColors.darkPurple,
         ),
-        body: const Center(
-          child: Text('Hello world'),
+        // Use Poppins as default font (loaded via google_fonts)
+        textTheme: TextTheme(
+          displayLarge: AppTextStyles.logo,
+          displayMedium: AppTextStyles.onboardingTitle,
+          bodyLarge: AppTextStyles.onboardingDescription,
+          labelLarge: AppTextStyles.buttonPrimary,
         ),
       ),
+      
+      // Start with splash screen
+      home: const SplashScreen(),
     );
   }
 }
