@@ -197,7 +197,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           description:
               'Verify your gas cylinder authenticity instantly with our advanced scanning technology. Stay protected from counterfeit cylinders.',
           icon: Icons.verified_user_outlined,
-          iconColor: const Color(0xFF4CAF50),
+          iconColor: AppColors.safetyGreen,
         ),
         
         // Page 2: Blockchain
@@ -206,7 +206,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           description:
               'Track every cylinder securely using NFT ownership. Complete transparency and security through decentralized technology.',
           icon: Icons.link_outlined,
-          iconColor: const Color(0xFF2196F3),
+          iconColor: AppColors.blockchainBlue,
         ),
         
         // Page 3: AI Assistant
@@ -215,7 +215,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           description:
               'Ask anything about safety or refills in your language! Get instant help with our intelligent Swahili-speaking assistant.',
           icon: Icons.psychology_outlined,
-          iconColor: const Color(0xFFFF9800),
+          iconColor: AppColors.aiOrange,
         ),
       ],
     );

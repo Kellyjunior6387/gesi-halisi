@@ -26,6 +26,11 @@ class AppColors {
   static const Color lightGray = Color(0xFFB0B0B0);
   static const Color darkGray = Color(0xFF2A2A2A);
   
+  // Feature-specific colors for onboarding
+  static const Color safetyGreen = Color(0xFF4CAF50);
+  static const Color blockchainBlue = Color(0xFF2196F3);
+  static const Color aiOrange = Color(0xFFFF9800);
+  
   // Glassmorphism colors
   static Color glassWhite = Colors.white.withOpacity(0.1);
   static Color glassWhiteBorder = Colors.white.withOpacity(0.2);
