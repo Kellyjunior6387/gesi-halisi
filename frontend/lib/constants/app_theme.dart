@@ -66,7 +66,8 @@ class AppGradients {
   );
 
   /// Glass card gradient
-  static LinearGradient glassGradient = LinearGradient(
+  /// Note: Cannot be const due to withOpacity() runtime calculation
+  static final LinearGradient glassGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
     colors: [

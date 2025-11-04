@@ -12,7 +12,7 @@
 /// Security: No sensitive data handled, all content is static
 
 import 'package:flutter/material.dart';
-import 'dart:ui';
+import 'dart:ui' show ImageFilter;
 import '../constants/app_theme.dart';
 
 class OnboardingPage extends StatelessWidget {

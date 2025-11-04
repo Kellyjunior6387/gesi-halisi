@@ -50,17 +50,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         statusBarIconBrightness: Brightness.light,
       ),
     );
-
-    // Listen to page changes
-    _pageController.addListener(() {
-      // Update current page index with proper null checking
-      final page = _pageController.page?.round() ?? 0;
-      if (page != _currentPage && mounted) {
-        setState(() {
-          _currentPage = page;
-        });
-      }
-    });
+    
+    // Note: Page changes are handled by onPageChanged callback in PageView
+    // This prevents memory leaks from listeners
   }
 
   @override

@@ -16,7 +16,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'dart:async';
+import 'dart:async' show Timer;
 import '../constants/app_theme.dart';
 import 'onboarding_screen.dart';
 
