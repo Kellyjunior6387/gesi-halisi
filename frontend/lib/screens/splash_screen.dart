@@ -1,4 +1,4 @@
-/// GasChain Splash Screen
+/// Gesi Halisi Splash Screen
 ///
 /// This screen displays the app logo and tagline with smooth animations
 /// before automatically navigating to the onboarding screen.
@@ -224,7 +224,7 @@ class _SplashScreenState extends State<SplashScreen>
   /// Builds the app name text
   Widget _buildAppName() {
     return Text(
-      'GasChain',
+      'Gesi Halisi',
       style: AppTextStyles.logo,
     );
   }

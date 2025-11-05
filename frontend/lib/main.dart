@@ -1,6 +1,6 @@
-/// GasChain Main Application Entry Point
+/// Gesi Halisi Main Application Entry Point
 ///
-/// This is the root of the GasChain application. It initializes Firebase
+/// This is the root of the Gesi Halisi application. It initializes Firebase
 /// and sets up the Material App with the splash screen as the entry point.
 ///
 /// Security Features:
@@ -33,18 +33,18 @@ void main() async {
   }
   
   // Launch the app
-  runApp(const GasChainApp());
+  runApp(const GesiHalisiApp());
 }
 
 /// Main application widget
-class GasChainApp extends StatelessWidget {
-  const GasChainApp({super.key});
+class GesiHalisiApp extends StatelessWidget {
+  const GesiHalisiApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       // App configuration
-      title: 'GasChain',
+      title: 'Gesi Halisi',
       debugShowCheckedModeBanner: false,
       
       // Theme configuration with Material 3

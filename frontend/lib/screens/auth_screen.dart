@@ -1,4 +1,4 @@
-/// GasChain Authentication Screen (Placeholder)
+/// Gesi Halisi Authentication Screen (Placeholder)
 ///
 /// This is a placeholder screen for the login/signup functionality.
 /// Will be implemented in future iterations with Firebase Authentication.
@@ -40,7 +40,7 @@ class AuthScreen extends StatelessWidget {
                   
                   // Title
                   Text(
-                    'Welcome to GasChain',
+                    'Welcome to Gesi Halisi',
                     style: AppTextStyles.onboardingTitle,
                     textAlign: TextAlign.center,
                   ),

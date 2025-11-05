@@ -1,10 +1,10 @@
-/// GasChain Onboarding Screen
+/// Gesi Halisi Onboarding Screen
 ///
 /// This screen introduces users to the app's key features through
 /// a series of interactive pages with smooth transitions.
 ///
 /// Features:
-/// - 3 onboarding pages with glassmorphic design
+/// - 2 onboarding pages with glassmorphic design
 /// - Smooth page transitions with PageView
 /// - Animated page indicators
 /// - Skip and Next navigation buttons
@@ -20,7 +20,7 @@ import 'package:flutter/services.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import '../constants/app_theme.dart';
 import '../widgets/onboarding_page.dart';
-import 'auth_screen.dart';
+import 'signup_screen.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -37,7 +37,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   int _currentPage = 0;
   
   // Total number of onboarding pages
-  static const int _totalPages = 3;
+  static const int _totalPages = 2;
 
   @override
   void initState() {
@@ -79,13 +79,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     _navigateToAuth();
   }
 
-  /// Navigates to authentication screen
+  /// Navigates to sign up screen
   void _navigateToAuth() {
     if (mounted) {
       Navigator.of(context).pushReplacement(
         PageRouteBuilder(
           pageBuilder: (context, animation, secondaryAnimation) =>
-              const AuthScreen(),
+              const SignUpScreen(),
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             return FadeTransition(
               opacity: animation,
@@ -199,15 +199,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               'Track every cylinder securely using NFT ownership. Complete transparency and security through decentralized technology.',
           icon: Icons.link_outlined,
           iconColor: AppColors.blockchainBlue,
-        ),
-        
-        // Page 3: AI Assistant
-        OnboardingPage(
-          title: 'AI Assistant in Swahili',
-          description:
-              'Ask anything about safety or refills in your language! Get instant help with our intelligent Swahili-speaking assistant.',
-          icon: Icons.psychology_outlined,
-          iconColor: AppColors.aiOrange,
         ),
       ],
     );

@@ -1,4 +1,4 @@
-/// GasChain Application Theme Constants
+/// Gesi Halisi Application Theme Constants
 /// 
 /// This file contains all theme-related constants including colors, gradients,
 /// text styles, and glassmorphism effects used throughout the application.
