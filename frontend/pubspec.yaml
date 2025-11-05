@@ -25,7 +25,7 @@ flutter:
   uses-material-design: true
   
   # Assets configuration
-  assets:
-    - assets/images/
-    - assets/lottie/
-    - assets/logo.png
+  #assets:
+  #  - assets/images/
+  #  - assets/lottie/
+  #  - assets/logo.png
