@@ -18,8 +18,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:ui' show ImageFilter;
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provider/provider.dart';
 import '../constants/app_theme.dart';
+import '../models/user_model.dart';
+import '../services/auth_service.dart';
+import '../services/firestore_service.dart';
 import 'login_screen.dart';
+import 'dashboard/manufacturer_dashboard.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -46,6 +52,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
   
   // Selected country code
   String _selectedCountryCode = '+1';
+  
+  // Selected user role
+  UserRole _selectedRole = UserRole.customer;
+  
+  // Loading state
+  bool _isLoading = false;
   
   // Common country codes
   final List<Map<String, String>> _countryCodes = [
@@ -206,6 +218,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 
                 const SizedBox(height: AppSpacing.md),
                 
+                // Role Selection
+                _buildRoleSelector(),
+                
+                const SizedBox(height: AppSpacing.md),
+                
                 // Password
                 _buildTextField(
                   controller: _passwordController,
@@ -247,6 +264,73 @@ class _SignUpScreenState extends State<SignUpScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  /// Builds the role selector dropdown
+  Widget _buildRoleSelector() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Select Your Role',
+          style: AppTextStyles.buttonSecondary.copyWith(
+            color: AppColors.white,
+            fontSize: 14,
+          ),
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+          decoration: BoxDecoration(
+            color: AppColors.glassWhite,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: AppColors.glassWhiteBorder),
+          ),
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton<UserRole>(
+              value: _selectedRole,
+              isExpanded: true,
+              dropdownColor: AppColors.darkPurple,
+              icon: const Icon(Icons.arrow_drop_down, color: AppColors.white),
+              style: const TextStyle(color: AppColors.white, fontSize: 16),
+              items: UserRole.values.map((role) {
+                IconData icon;
+                switch (role) {
+                  case UserRole.manufacturer:
+                    icon = Icons.factory;
+                    break;
+                  case UserRole.distributor:
+                    icon = Icons.local_shipping;
+                    break;
+                  case UserRole.customer:
+                    icon = Icons.person;
+                    break;
+                }
+                
+                return DropdownMenuItem<UserRole>(
+                  value: role,
+                  child: Row(
+                    children: [
+                      Icon(icon, color: AppColors.accentPurple, size: 20),
+                      const SizedBox(width: AppSpacing.sm),
+                      Text(
+                        role.displayName,
+                        style: const TextStyle(color: AppColors.white),
+                      ),
+                    ],
+                  ),
+                );
+              }).toList(),
+              onChanged: (value) {
+                setState(() {
+                  _selectedRole = value!;
+                });
+              },
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -401,29 +485,262 @@ class _SignUpScreenState extends State<SignUpScreen> {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: () {
-            // TODO: Implement Firebase sign up logic
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  'Firebase authentication will be implemented next',
-                  style: AppTextStyles.buttonSecondary.copyWith(color: AppColors.white),
-                ),
-                backgroundColor: AppColors.darkPurple,
-                behavior: SnackBarBehavior.floating,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-            );
-          },
+          onTap: _isLoading ? null : _handleSignUp,
           borderRadius: BorderRadius.circular(12),
           child: Center(
-            child: Text(
-              'Sign Up',
-              style: AppTextStyles.buttonPrimary,
-            ),
+            child: _isLoading
+                ? const SizedBox(
+                    height: 24,
+                    width: 24,
+                    child: CircularProgressIndicator(
+                      color: AppColors.white,
+                      strokeWidth: 2,
+                    ),
+                  )
+                : Text(
+                    'Sign Up',
+                    style: AppTextStyles.buttonPrimary,
+                  ),
           ),
+        ),
+      ),
+    );
+  }
+
+  /// Handle sign up with Firebase
+  Future<void> _handleSignUp() async {
+    // Validate inputs
+    if (_firstNameController.text.trim().isEmpty) {
+      _showErrorSnackBar('Please enter your first name');
+      return;
+    }
+    if (_lastNameController.text.trim().isEmpty) {
+      _showErrorSnackBar('Please enter your last name');
+      return;
+    }
+    if (_emailController.text.trim().isEmpty) {
+      _showErrorSnackBar('Please enter your email');
+      return;
+    }
+    if (_passwordController.text.isEmpty) {
+      _showErrorSnackBar('Please enter a password');
+      return;
+    }
+    if (_passwordController.text.length < 6) {
+      _showErrorSnackBar('Password must be at least 6 characters');
+      return;
+    }
+    if (_passwordController.text != _confirmPasswordController.text) {
+      _showErrorSnackBar('Passwords do not match');
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final authService = context.read<AuthService>();
+      final firestoreService = FirestoreService();
+
+      // Create user with Firebase Auth
+      final userCredential = await authService.signUpWithEmailPassword(
+        email: _emailController.text.trim(),
+        password: _passwordController.text,
+      );
+
+      if (userCredential?.user != null) {
+        // Create user profile in Firestore
+        final userModel = UserModel(
+          uid: userCredential!.user!.uid,
+          email: _emailController.text.trim(),
+          firstName: _firstNameController.text.trim(),
+          lastName: _lastNameController.text.trim(),
+          phoneNumber: _phoneController.text.trim().isNotEmpty
+              ? '$_selectedCountryCode${_phoneController.text.trim()}'
+              : null,
+          role: _selectedRole,
+          createdAt: DateTime.now(),
+        );
+
+        await firestoreService.saveUserProfile(userModel);
+
+        if (mounted) {
+          // Navigate to appropriate screen based on role
+          if (_selectedRole == UserRole.manufacturer) {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder: (context) => const ManufacturerDashboard(),
+              ),
+            );
+          } else {
+            // For now, show success message for other roles
+            _showSuccessSnackBar('Account created successfully!');
+            // TODO: Navigate to appropriate dashboard for distributor/customer
+          }
+        }
+      }
+    } on FirebaseAuthException catch (e) {
+      _showErrorSnackBar(AuthService.getErrorMessage(e));
+    } catch (e) {
+      _showErrorSnackBar('An error occurred. Please try again.');
+      debugPrint('Sign up error: $e');
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  /// Handle Google sign-in
+  Future<void> _handleGoogleSignIn() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final authService = context.read<AuthService>();
+      final userCredential = await authService.signInWithGoogle();
+
+      if (userCredential?.user != null && mounted) {
+        final firestoreService = FirestoreService();
+        
+        // Check if user profile exists
+        final exists = await firestoreService.userProfileExists(
+          userCredential!.user!.uid,
+        );
+
+        if (!exists) {
+          // Create profile for new user - default to customer role
+          final userModel = UserModel(
+            uid: userCredential.user!.uid,
+            email: userCredential.user!.email!,
+            firstName: userCredential.user!.displayName?.split(' ').first ?? 'User',
+            lastName: userCredential.user!.displayName?.split(' ').last ?? '',
+            role: _selectedRole,
+            createdAt: DateTime.now(),
+            profileImageUrl: userCredential.user!.photoURL,
+          );
+
+          await firestoreService.saveUserProfile(userModel);
+        }
+
+        if (mounted) {
+          _showSuccessSnackBar('Signed in with Google successfully!');
+          // Navigate based on role
+          if (_selectedRole == UserRole.manufacturer) {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder: (context) => const ManufacturerDashboard(),
+              ),
+            );
+          }
+        }
+      }
+    } on FirebaseAuthException catch (e) {
+      _showErrorSnackBar(AuthService.getErrorMessage(e));
+    } catch (e) {
+      _showErrorSnackBar('Google sign-in failed. Please try again.');
+      debugPrint('Google sign-in error: $e');
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  /// Handle GitHub sign-in
+  Future<void> _handleGitHubSignIn() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final authService = context.read<AuthService>();
+      final userCredential = await authService.signInWithGitHub();
+
+      if (userCredential?.user != null && mounted) {
+        final firestoreService = FirestoreService();
+        
+        // Check if user profile exists
+        final exists = await firestoreService.userProfileExists(
+          userCredential!.user!.uid,
+        );
+
+        if (!exists) {
+          // Create profile for new user
+          final userModel = UserModel(
+            uid: userCredential.user!.uid,
+            email: userCredential.user!.email!,
+            firstName: userCredential.user!.displayName?.split(' ').first ?? 'User',
+            lastName: userCredential.user!.displayName?.split(' ').last ?? '',
+            role: _selectedRole,
+            createdAt: DateTime.now(),
+            profileImageUrl: userCredential.user!.photoURL,
+          );
+
+          await firestoreService.saveUserProfile(userModel);
+        }
+
+        if (mounted) {
+          _showSuccessSnackBar('Signed in with GitHub successfully!');
+          // Navigate based on role
+          if (_selectedRole == UserRole.manufacturer) {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder: (context) => const ManufacturerDashboard(),
+              ),
+            );
+          }
+        }
+      }
+    } on FirebaseAuthException catch (e) {
+      _showErrorSnackBar(AuthService.getErrorMessage(e));
+    } catch (e) {
+      _showErrorSnackBar('GitHub sign-in failed. Please try again.');
+      debugPrint('GitHub sign-in error: $e');
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  /// Show error snackbar
+  void _showErrorSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          message,
+          style: AppTextStyles.buttonSecondary.copyWith(color: AppColors.white),
+        ),
+        backgroundColor: Colors.red.shade900,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+      ),
+    );
+  }
+
+  /// Show success snackbar
+  void _showSuccessSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          message,
+          style: AppTextStyles.buttonSecondary.copyWith(color: AppColors.white),
+        ),
+        backgroundColor: AppColors.safetyGreen,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
         ),
       ),
     );
@@ -466,21 +783,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
         _buildOAuthButton(
           label: 'Continue with Google',
           icon: Icons.g_mobiledata,
-          onTap: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  'Google OAuth will be implemented with Firebase',
-                  style: AppTextStyles.buttonSecondary.copyWith(color: AppColors.white),
-                ),
-                backgroundColor: AppColors.darkPurple,
-                behavior: SnackBarBehavior.floating,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-            );
-          },
+          onTap: _handleGoogleSignIn,
         ),
         
         const SizedBox(height: AppSpacing.md),
@@ -512,21 +815,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
         _buildOAuthButton(
           label: 'Continue with GitHub',
           icon: Icons.code,
-          onTap: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  'GitHub OAuth will be implemented with Firebase',
-                  style: AppTextStyles.buttonSecondary.copyWith(color: AppColors.white),
-                ),
-                backgroundColor: AppColors.darkPurple,
-                behavior: SnackBarBehavior.floating,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-            );
-          },
+          onTap: _handleGitHubSignIn,
         ),
       ],
     );

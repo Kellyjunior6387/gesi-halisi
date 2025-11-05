@@ -16,8 +16,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:ui' show ImageFilter;
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provider/provider.dart';
 import '../constants/app_theme.dart';
+import '../services/auth_service.dart';
+import '../services/firestore_service.dart';
+import '../models/user_model.dart';
 import 'signup_screen.dart';
+import 'dashboard/manufacturer_dashboard.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -36,6 +42,9 @@ class _LoginScreenState extends State<LoginScreen> {
   
   // Password visibility toggle
   bool _obscurePassword = true;
+  
+  // Loading state
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -284,29 +293,200 @@ class _LoginScreenState extends State<LoginScreen> {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: () {
-            // TODO: Implement Firebase login logic
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  'Firebase authentication will be implemented next',
-                  style: AppTextStyles.buttonSecondary.copyWith(color: AppColors.white),
-                ),
-                backgroundColor: AppColors.darkPurple,
-                behavior: SnackBarBehavior.floating,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-            );
-          },
+          onTap: _isLoading ? null : _handleLogin,
           borderRadius: BorderRadius.circular(12),
           child: Center(
-            child: Text(
-              'Login',
-              style: AppTextStyles.buttonPrimary,
-            ),
+            child: _isLoading
+                ? const SizedBox(
+                    height: 24,
+                    width: 24,
+                    child: CircularProgressIndicator(
+                      color: AppColors.white,
+                      strokeWidth: 2,
+                    ),
+                  )
+                : Text(
+                    'Login',
+                    style: AppTextStyles.buttonPrimary,
+                  ),
           ),
+        ),
+      ),
+    );
+  }
+
+  /// Handle login with Firebase
+  Future<void> _handleLogin() async {
+    // Validate inputs
+    if (_emailController.text.trim().isEmpty) {
+      _showErrorSnackBar('Please enter your email');
+      return;
+    }
+    if (_passwordController.text.isEmpty) {
+      _showErrorSnackBar('Please enter your password');
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final authService = context.read<AuthService>();
+      final userCredential = await authService.signInWithEmailPassword(
+        email: _emailController.text.trim(),
+        password: _passwordController.text,
+      );
+
+      if (userCredential?.user != null && mounted) {
+        final firestoreService = FirestoreService();
+        final userProfile = await firestoreService.getUserProfile(
+          userCredential!.user!.uid,
+        );
+
+        if (userProfile != null && mounted) {
+          // Navigate based on user role
+          if (userProfile.role == UserRole.manufacturer) {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder: (context) => const ManufacturerDashboard(),
+              ),
+            );
+          } else {
+            _showSuccessSnackBar('Welcome back, ${userProfile.firstName}!');
+            // TODO: Navigate to appropriate dashboard
+          }
+        }
+      }
+    } on FirebaseAuthException catch (e) {
+      _showErrorSnackBar(AuthService.getErrorMessage(e));
+    } catch (e) {
+      _showErrorSnackBar('Login failed. Please try again.');
+      debugPrint('Login error: $e');
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  /// Handle Google sign-in
+  Future<void> _handleGoogleSignIn() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final authService = context.read<AuthService>();
+      final userCredential = await authService.signInWithGoogle();
+
+      if (userCredential?.user != null && mounted) {
+        final firestoreService = FirestoreService();
+        final userProfile = await firestoreService.getUserProfile(
+          userCredential!.user!.uid,
+        );
+
+        if (userProfile != null && mounted) {
+          // Navigate based on user role
+          if (userProfile.role == UserRole.manufacturer) {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder: (context) => const ManufacturerDashboard(),
+              ),
+            );
+          } else {
+            _showSuccessSnackBar('Welcome back, ${userProfile.firstName}!');
+          }
+        }
+      }
+    } on FirebaseAuthException catch (e) {
+      _showErrorSnackBar(AuthService.getErrorMessage(e));
+    } catch (e) {
+      _showErrorSnackBar('Google sign-in failed. Please try again.');
+      debugPrint('Google sign-in error: $e');
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  /// Handle GitHub sign-in
+  Future<void> _handleGitHubSignIn() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final authService = context.read<AuthService>();
+      final userCredential = await authService.signInWithGitHub();
+
+      if (userCredential?.user != null && mounted) {
+        final firestoreService = FirestoreService();
+        final userProfile = await firestoreService.getUserProfile(
+          userCredential!.user!.uid,
+        );
+
+        if (userProfile != null && mounted) {
+          // Navigate based on user role
+          if (userProfile.role == UserRole.manufacturer) {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder: (context) => const ManufacturerDashboard(),
+              ),
+            );
+          } else {
+            _showSuccessSnackBar('Welcome back, ${userProfile.firstName}!');
+          }
+        }
+      }
+    } on FirebaseAuthException catch (e) {
+      _showErrorSnackBar(AuthService.getErrorMessage(e));
+    } catch (e) {
+      _showErrorSnackBar('GitHub sign-in failed. Please try again.');
+      debugPrint('GitHub sign-in error: $e');
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  /// Show error snackbar
+  void _showErrorSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          message,
+          style: AppTextStyles.buttonSecondary.copyWith(color: AppColors.white),
+        ),
+        backgroundColor: Colors.red.shade900,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+      ),
+    );
+  }
+
+  /// Show success snackbar
+  void _showSuccessSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          message,
+          style: AppTextStyles.buttonSecondary.copyWith(color: AppColors.white),
+        ),
+        backgroundColor: AppColors.safetyGreen,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
         ),
       ),
     );
@@ -349,44 +529,7 @@ class _LoginScreenState extends State<LoginScreen> {
         _buildOAuthButton(
           label: 'Continue with Google',
           icon: Icons.g_mobiledata,
-          onTap: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  'Google OAuth will be implemented with Firebase',
-                  style: AppTextStyles.buttonSecondary.copyWith(color: AppColors.white),
-                ),
-                backgroundColor: AppColors.darkPurple,
-                behavior: SnackBarBehavior.floating,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-            );
-          },
-        ),
-        
-        const SizedBox(height: AppSpacing.md),
-        
-        // Apple Sign In
-        _buildOAuthButton(
-          label: 'Continue with Apple',
-          icon: Icons.apple,
-          onTap: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  'Apple OAuth will be implemented with Firebase',
-                  style: AppTextStyles.buttonSecondary.copyWith(color: AppColors.white),
-                ),
-                backgroundColor: AppColors.darkPurple,
-                behavior: SnackBarBehavior.floating,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-            );
-          },
+          onTap: _handleGoogleSignIn,
         ),
         
         const SizedBox(height: AppSpacing.md),
@@ -395,21 +538,7 @@ class _LoginScreenState extends State<LoginScreen> {
         _buildOAuthButton(
           label: 'Continue with GitHub',
           icon: Icons.code,
-          onTap: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  'GitHub OAuth will be implemented with Firebase',
-                  style: AppTextStyles.buttonSecondary.copyWith(color: AppColors.white),
-                ),
-                backgroundColor: AppColors.darkPurple,
-                behavior: SnackBarBehavior.floating,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-            );
-          },
+          onTap: _handleGitHubSignIn,
         ),
       ],
     );
