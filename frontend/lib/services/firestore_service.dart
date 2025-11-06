@@ -34,11 +34,15 @@ class FirestoreService {
     try {
       final doc = await _usersCollection.doc(uid).get();
       if (doc.exists) {
+        debugPrint('📖 Reading user profile for: $uid');
+        debugPrint('📋 Data: ${doc.data()}');
         return UserModel.fromFirestore(doc);
       }
+      debugPrint('⚠️ User profile not found for: $uid');
       return null;
-    } catch (e) {
+    } catch (e, stackTrace) {
       debugPrint('❌ Error getting user profile: $e');
+      debugPrint('Stack trace: $stackTrace');
       rethrow;
     }
   }

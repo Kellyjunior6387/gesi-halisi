@@ -50,12 +50,29 @@ class UserModel {
   /// Create UserModel from Firestore document
   factory UserModel.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
+    
+    // Helper function to safely convert to String
+    String _toString(dynamic value, String defaultValue) {
+      if (value == null) return defaultValue;
+      if (value is String) return value;
+      if (value is List && value.isNotEmpty) return value.first.toString();
+      return value.toString();
+    }
+    
+    // Helper function to safely convert to nullable String
+    String? _toStringOrNull(dynamic value) {
+      if (value == null) return null;
+      if (value is String) return value;
+      if (value is List && value.isNotEmpty) return value.first.toString();
+      return value.toString();
+    }
+    
     return UserModel(
       uid: doc.id,
-      email: data['email'] as String,
-      firstName: data['firstName'] as String,
-      lastName: data['lastName'] as String,
-      phoneNumber: data['phoneNumber'] as String?,
+      email: _toString(data['email'], ''),
+      firstName: _toString(data['firstName'], 'User'),
+      lastName: _toString(data['lastName'], ''),
+      phoneNumber: _toStringOrNull(data['phoneNumber']),
       role: UserRole.values.firstWhere(
         (e) => e.name == data['role'],
         orElse: () => UserRole.customer,
@@ -64,7 +81,7 @@ class UserModel {
       updatedAt: data['updatedAt'] != null
           ? (data['updatedAt'] as Timestamp).toDate()
           : null,
-      profileImageUrl: data['profileImageUrl'] as String?,
+      profileImageUrl: _toStringOrNull(data['profileImageUrl']),
     );
   }
 
