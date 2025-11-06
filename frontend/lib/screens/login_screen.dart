@@ -356,6 +356,10 @@ class _LoginScreenState extends State<LoginScreen> {
             _showSuccessSnackBar('Welcome back, ${userProfile.firstName}!');
             // TODO: Navigate to appropriate dashboard
           }
+        } else if (mounted) {
+          // User profile not found in Firestore
+          _showErrorSnackBar('User profile not found. Please contact support or sign up again.');
+          debugPrint('User profile not found for uid: ${userCredential.user!.uid}');
         }
       }
     } on FirebaseAuthException catch (e) {

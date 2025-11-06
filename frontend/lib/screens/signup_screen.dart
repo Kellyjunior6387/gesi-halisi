@@ -583,7 +583,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
     } on FirebaseAuthException catch (e) {
       _showErrorSnackBar(AuthService.getErrorMessage(e));
     } catch (e) {
-      _showErrorSnackBar('An error occurred. Please try again.');
+      // More detailed error message
+      _showErrorSnackBar('Failed to save user profile: ${e.toString()}');
       debugPrint('Sign up error: $e');
     } finally {
       if (mounted) {
