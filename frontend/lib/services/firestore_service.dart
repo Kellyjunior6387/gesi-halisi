@@ -96,6 +96,8 @@ class FirestoreService {
 
   /// Register a new cylinder in Firestore
   /// This will trigger the Cloud Function to mint the NFT
+  /// 
+  /// Returns the document ID of the newly created cylinder
   Future<String> registerCylinder({
     required String serialNumber,
     required String manufacturer,
