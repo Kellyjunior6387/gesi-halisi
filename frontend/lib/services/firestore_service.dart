@@ -5,6 +5,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import '../models/user_model.dart';
+import '../models/cylinder_model.dart';
 
 class FirestoreService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -91,7 +92,69 @@ class FirestoreService {
     }
   }
 
-  // Cylinder Management Methods (Placeholder for future implementation)
+  // Cylinder Management Methods
+
+  /// Register a new cylinder in Firestore
+  /// This will trigger the Cloud Function to mint the NFT
+  Future<String> registerCylinder({
+    required String serialNumber,
+    required String manufacturer,
+    required String manufacturerId,
+    required String cylinderType,
+    required double weight,
+    required double capacity,
+    required String batchNumber,
+  }) async {
+    try {
+      debugPrint('📝 Registering cylinder: $serialNumber');
+      
+      final cylinderData = {
+        'serialNumber': serialNumber,
+        'manufacturer': manufacturer,
+        'manufacturerId': manufacturerId,
+        'cylinderType': cylinderType,
+        'weight': weight,
+        'capacity': capacity,
+        'batchNumber': batchNumber,
+        'status': CylinderStatus.pending.name,
+        'createdAt': FieldValue.serverTimestamp(),
+        'updatedAt': FieldValue.serverTimestamp(),
+      };
+
+      final docRef = await _cylindersCollection.add(cylinderData);
+      debugPrint('✅ Cylinder registered with ID: ${docRef.id}');
+      debugPrint('⏳ Waiting for Cloud Function to mint NFT...');
+      
+      return docRef.id;
+    } catch (e) {
+      debugPrint('❌ Error registering cylinder: $e');
+      rethrow;
+    }
+  }
+
+  /// Get a single cylinder by ID
+  Future<CylinderModel?> getCylinder(String cylinderId) async {
+    try {
+      final doc = await _cylindersCollection.doc(cylinderId).get();
+      if (doc.exists) {
+        return CylinderModel.fromFirestore(doc);
+      }
+      return null;
+    } catch (e) {
+      debugPrint('❌ Error getting cylinder: $e');
+      rethrow;
+    }
+  }
+
+  /// Stream a single cylinder by ID
+  Stream<CylinderModel?> streamCylinder(String cylinderId) {
+    return _cylindersCollection.doc(cylinderId).snapshots().map((doc) {
+      if (doc.exists) {
+        return CylinderModel.fromFirestore(doc);
+      }
+      return null;
+    });
+  }
 
   /// Get cylinders for a manufacturer
   Stream<QuerySnapshot> getCylindersForManufacturer(String manufacturerId) {
@@ -107,6 +170,53 @@ class FirestoreService {
         .orderBy('createdAt', descending: true)
         .limit(100)
         .snapshots();
+  }
+
+  /// Get cylinders as models for a manufacturer
+  Stream<List<CylinderModel>> streamCylindersForManufacturer(
+      String manufacturerId) {
+    return _cylindersCollection
+        .where('manufacturerId', isEqualTo: manufacturerId)
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .map((snapshot) => snapshot.docs
+            .map((doc) => CylinderModel.fromFirestore(doc))
+            .toList());
+  }
+
+  /// Get all cylinders as models
+  Stream<List<CylinderModel>> streamAllCylinders() {
+    return _cylindersCollection
+        .orderBy('createdAt', descending: true)
+        .limit(100)
+        .snapshots()
+        .map((snapshot) => snapshot.docs
+            .map((doc) => CylinderModel.fromFirestore(doc))
+            .toList());
+  }
+
+  /// Update cylinder status (usually done by Cloud Function, but can be manual)
+  Future<void> updateCylinderStatus({
+    required String cylinderId,
+    required CylinderStatus status,
+    String? errorMessage,
+  }) async {
+    try {
+      final updateData = {
+        'status': status.name,
+        'updatedAt': FieldValue.serverTimestamp(),
+      };
+
+      if (errorMessage != null) {
+        updateData['errorMessage'] = errorMessage;
+      }
+
+      await _cylindersCollection.doc(cylinderId).update(updateData);
+      debugPrint('✅ Cylinder status updated: $cylinderId -> ${status.name}');
+    } catch (e) {
+      debugPrint('❌ Error updating cylinder status: $e');
+      rethrow;
+    }
   }
 
   // Order Management Methods (Placeholder for future implementation)
