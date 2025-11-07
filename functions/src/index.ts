@@ -126,13 +126,13 @@ export const onCylinderCreated = functions.firestore
 
       // Extract tokenId from transaction logs
       // The mintCylinder function returns the tokenId
-      let tokenId = null;
+      let tokenId: string | null = null;
 
       // Parse logs to find CylinderMinted event
       for (const log of receipt.logs) {
         try {
           const parsedLog = contract.interface.parseLog({
-            topics: log.topics,
+            topics: [...log.topics],
             data: log.data,
           });
           if (parsedLog && parsedLog.name === "CylinderMinted") {

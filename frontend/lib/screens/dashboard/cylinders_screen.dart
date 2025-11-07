@@ -277,13 +277,15 @@ class _CylindersScreenState extends State<CylindersScreen> {
                 const SizedBox(height: AppSpacing.sm),
                 _buildInfoItem(
                   'Token ID',
-                  '#${cylinder.tokenId}',
+                  '#${cylinder.tokenId ?? "N/A"}',
                   Icons.diamond,
                 ),
                 const SizedBox(height: AppSpacing.sm),
                 _buildInfoItem(
                   'Transaction',
-                  '${cylinder.transactionHash?.substring(0, 10)}...',
+                  cylinder.transactionHash != null && cylinder.transactionHash!.length > 10
+                    ? '${cylinder.transactionHash!.substring(0, 10)}...'
+                    : cylinder.transactionHash ?? 'N/A',
                   Icons.receipt_long,
                 ),
               ],
