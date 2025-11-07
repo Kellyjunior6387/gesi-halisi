@@ -9,11 +9,22 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  
+  # Firebase Dependencies
   firebase_core: ^4.2.1
+  firebase_auth: ^5.3.3
+  cloud_firestore: ^5.5.2
+  google_sign_in: ^6.2.2
+  
   # UI & Animation Dependencies
   lottie: ^3.1.0  # For Lottie animations
   smooth_page_indicator: ^1.2.0  # For onboarding page indicators
   google_fonts: ^6.2.1  # For modern fonts (Poppins)
+  fl_chart: ^0.69.2  # For charts in dashboard
+  
+  # State Management & Utils
+  provider: ^6.1.2  # For state management
+  
   # For glassmorphism effects (using built-in BackdropFilter)
 
 dev_dependencies:

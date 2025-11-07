@@ -11,9 +11,11 @@
 
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:provider/provider.dart';
 import 'firebase_options.dart';
 import 'screens/splash_screen.dart';
 import 'constants/app_theme.dart';
+import 'services/auth_service.dart';
 
 void main() async {
   // Ensure Flutter binding is initialized before any async operations
@@ -42,32 +44,37 @@ class GesiHalisiApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      // App configuration
-      title: 'Gesi Halisi',
-      debugShowCheckedModeBanner: false,
-      
-      // Theme configuration with Material 3
-      theme: ThemeData(
-        useMaterial3: true,
-        brightness: Brightness.dark,
-        colorScheme: ColorScheme.dark(
-          primary: AppColors.accentPurple,
-          secondary: AppColors.lightPurple,
-          background: AppColors.black,
-          surface: AppColors.darkPurple,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthService()),
+      ],
+      child: MaterialApp(
+        // App configuration
+        title: 'Gesi Halisi',
+        debugShowCheckedModeBanner: false,
+        
+        // Theme configuration with Material 3
+        theme: ThemeData(
+          useMaterial3: true,
+          brightness: Brightness.dark,
+          colorScheme: ColorScheme.dark(
+            primary: AppColors.accentPurple,
+            secondary: AppColors.lightPurple,
+            background: AppColors.black,
+            surface: AppColors.darkPurple,
+          ),
+          // Use Poppins as default font (loaded via google_fonts)
+          textTheme: TextTheme(
+            displayLarge: AppTextStyles.logo,
+            displayMedium: AppTextStyles.onboardingTitle,
+            bodyLarge: AppTextStyles.onboardingDescription,
+            labelLarge: AppTextStyles.buttonPrimary,
+          ),
         ),
-        // Use Poppins as default font (loaded via google_fonts)
-        textTheme: TextTheme(
-          displayLarge: AppTextStyles.logo,
-          displayMedium: AppTextStyles.onboardingTitle,
-          bodyLarge: AppTextStyles.onboardingDescription,
-          labelLarge: AppTextStyles.buttonPrimary,
-        ),
+        
+        // Start with splash screen
+        home: const SplashScreen(),
       ),
-      
-      // Start with splash screen
-      home: const SplashScreen(),
     );
   }
 }
