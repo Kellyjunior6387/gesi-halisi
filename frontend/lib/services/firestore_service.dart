@@ -221,6 +221,36 @@ class FirestoreService {
     }
   }
 
+  /// Update cylinder with blockchain data after NFT minting
+  Future<void> updateCylinderBlockchainData({
+    required String cylinderId,
+    required String transactionHash,
+    required String contractAddress,
+    required String tokenId,
+  }) async {
+    try {
+      final updateData = {
+        'status': CylinderStatus.minted.name,
+        'blockchain': {
+          'transactionHash': transactionHash,
+          'contractAddress': contractAddress,
+          'tokenId': tokenId,
+        },
+        'updatedAt': FieldValue.serverTimestamp(),
+        'mintedAt': FieldValue.serverTimestamp(),
+      };
+
+      await _cylindersCollection.doc(cylinderId).update(updateData);
+      debugPrint('✅ Cylinder blockchain data updated: $cylinderId');
+      debugPrint('   Transaction: $transactionHash');
+      debugPrint('   Contract: $contractAddress');
+      debugPrint('   Token ID: $tokenId');
+    } catch (e) {
+      debugPrint('❌ Error updating blockchain data: $e');
+      rethrow;
+    }
+  }
+
   // Order Management Methods (Placeholder for future implementation)
 
   /// Get orders for a user

@@ -8,6 +8,7 @@ import 'dart:ui' show ImageFilter;
 import '../../constants/app_theme.dart';
 import '../../services/firestore_service.dart';
 import '../../services/auth_service.dart';
+import '../../services/blockchain_service.dart';
 import 'package:provider/provider.dart';
 
 class RegisterCylinderDialog extends StatefulWidget {
@@ -26,6 +27,10 @@ class _RegisterCylinderDialogState extends State<RegisterCylinderDialog> {
   String _selectedType = 'LPG';
   final List<String> _cylinderTypes = ['LPG', 'Oxygen', 'CO2', 'Nitrogen'];
   bool _isLoading = false;
+  bool _showSuccess = false;
+  String? _transactionHash;
+  String? _contractAddress;
+  String? _tokenId;
 
   @override
   void dispose() {
@@ -51,48 +56,220 @@ class _RegisterCylinderDialogState extends State<RegisterCylinderDialog> {
               borderRadius: BorderRadius.circular(20),
               border: Border.all(color: AppColors.glassWhiteBorder),
             ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Header
-                Container(
-                  padding: const EdgeInsets.all(AppSpacing.lg),
-                  decoration: BoxDecoration(
-                    color: AppColors.glassWhite,
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(20),
-                      topRight: Radius.circular(20),
-                    ),
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          gradient: AppGradients.accentGradient,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: const Icon(
-                          Icons.add_circle_outline,
-                          color: AppColors.white,
-                          size: 24,
-                        ),
-                      ),
-                      const SizedBox(width: AppSpacing.md),
-                      Text(
-                        'Register New Cylinder',
-                        style: AppTextStyles.onboardingTitle.copyWith(fontSize: 20),
-                      ),
-                      const Spacer(),
-                      IconButton(
-                        icon: const Icon(Icons.close, color: AppColors.white),
-                        onPressed: () => Navigator.pop(context),
-                      ),
-                    ],
+            child: _showSuccess ? _buildSuccessView() : _buildFormView(),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSuccessView() {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // Header
+        Container(
+          padding: const EdgeInsets.all(AppSpacing.lg),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [AppColors.safetyGreen, AppColors.safetyGreen.withOpacity(0.7)],
+            ),
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(20),
+              topRight: Radius.circular(20),
+            ),
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(50),
+                ),
+                child: const Icon(
+                  Icons.check_circle,
+                  color: AppColors.safetyGreen,
+                  size: 32,
+                ),
+              ),
+              const SizedBox(width: AppSpacing.md),
+              Expanded(
+                child: Text(
+                  'NFT Minted Successfully!',
+                  style: AppTextStyles.onboardingTitle.copyWith(
+                    fontSize: 18,
+                    color: Colors.white,
                   ),
                 ),
+              ),
+            ],
+          ),
+        ),
 
-                // Form
+        // Success content
+        Flexible(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(AppSpacing.lg),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: AppSpacing.sm),
+                Text(
+                  'Your cylinder has been successfully registered on the blockchain!',
+                  style: TextStyle(
+                    color: AppColors.white.withOpacity(0.9),
+                    fontSize: 14,
+                  ),
+                ),
+                
+                const SizedBox(height: AppSpacing.xl),
+                
+                _buildInfoRow('Contract Address', _contractAddress ?? 'N/A', Icons.article),
+                const SizedBox(height: AppSpacing.md),
+                _buildInfoRow('Transaction Hash', _transactionHash ?? 'N/A', Icons.receipt_long),
+                const SizedBox(height: AppSpacing.md),
+                _buildInfoRow('Token ID', _tokenId ?? 'N/A', Icons.diamond),
+                
+                const SizedBox(height: AppSpacing.xl),
+                
+                // View on Explorer button
+                Container(
+                  width: double.infinity,
+                  height: 50,
+                  decoration: AppDecorations.secondaryButton(),
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: _openBlockchainExplorer,
+                      borderRadius: BorderRadius.circular(12),
+                      child: const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.open_in_new, color: AppColors.white, size: 20),
+                          SizedBox(width: AppSpacing.sm),
+                          Text(
+                            'View on Explorer',
+                            style: AppTextStyles.buttonPrimary,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                
+                const SizedBox(height: AppSpacing.md),
+                
+                // Close button
+                Container(
+                  width: double.infinity,
+                  height: 50,
+                  decoration: AppDecorations.primaryButton(),
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: _handleClose,
+                      borderRadius: BorderRadius.circular(12),
+                      child: const Center(
+                        child: Text(
+                          'Done',
+                          style: AppTextStyles.buttonPrimary,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildInfoRow(String label, String value, IconData icon) {
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.md),
+      decoration: BoxDecoration(
+        color: AppColors.glassWhite,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.glassWhiteBorder),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, color: AppColors.accentPurple, size: 20),
+          const SizedBox(width: AppSpacing.sm),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: TextStyle(
+                    color: AppColors.lightGray.withOpacity(0.7),
+                    fontSize: 12,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  value.length > 40 ? '${value.substring(0, 20)}...${value.substring(value.length - 20)}' : value,
+                  style: const TextStyle(
+                    color: AppColors.white,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFormView() {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // Header
+        Container(
+          padding: const EdgeInsets.all(AppSpacing.lg),
+          decoration: BoxDecoration(
+            color: AppColors.glassWhite,
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(20),
+              topRight: Radius.circular(20),
+            ),
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  gradient: AppGradients.accentGradient,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(
+                  Icons.add_circle_outline,
+                  color: AppColors.white,
+                  size: 24,
+                ),
+              ),
+              const SizedBox(width: AppSpacing.md),
+              Text(
+                'Register New Cylinder',
+                style: AppTextStyles.onboardingTitle.copyWith(fontSize: 20),
+              ),
+              const Spacer(),
+              IconButton(
+                icon: const Icon(Icons.close, color: AppColors.white),
+                onPressed: () => Navigator.pop(context),
+              ),
+            ],
+          ),
+        ),
+
+        // Form
                 Flexible(
                   child: SingleChildScrollView(
                     padding: const EdgeInsets.all(AppSpacing.lg),
@@ -146,7 +323,7 @@ class _RegisterCylinderDialogState extends State<RegisterCylinderDialog> {
                               const SizedBox(width: AppSpacing.md),
                               Expanded(
                                 child: _buildButton(
-                                  label: _isLoading ? 'Registering...' : 'Register',
+                                  label: _isLoading ? 'Minting NFT...' : 'Register & Mint',
                                   onTap: _isLoading ? null : _handleRegister,
                                   isPrimary: true,
                                   isLoading: _isLoading,
@@ -321,29 +498,19 @@ class _RegisterCylinderDialogState extends State<RegisterCylinderDialog> {
     if (_serialNumberController.text.trim().isEmpty ||
         _capacityController.text.trim().isEmpty ||
         _batchNumberController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Please fill in all fields',
-            style: AppTextStyles.buttonSecondary.copyWith(color: AppColors.white),
-          ),
-          backgroundColor: Colors.red,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
-      );
+      _showErrorSnackBar('Please fill in all fields');
       return;
     }
 
     setState(() {
       _isLoading = true;
+      _showSuccess = false;
     });
 
     try {
       final authService = Provider.of<AuthService>(context, listen: false);
       final firestoreService = FirestoreService();
+      final blockchainService = BlockchainService();
       final user = authService.currentUser;
 
       if (user == null) {
@@ -356,65 +523,126 @@ class _RegisterCylinderDialogState extends State<RegisterCylinderDialog> {
         throw Exception('User profile not found');
       }
 
-      final capacity = double.tryParse(_capacityController.text.trim()) ?? 0.0;
+      // Check if user is a manufacturer (admin validation)
+      if (userProfile.role.name != 'manufacturer') {
+        throw Exception('Only manufacturers can register cylinders');
+      }
 
-      // Register the cylinder in Firestore
-      // This will trigger the Cloud Function to mint the NFT
+      final capacity = double.tryParse(_capacityController.text.trim()) ?? 0.0;
+      final serialNumber = _serialNumberController.text.trim();
+      final batchNumber = _batchNumberController.text.trim();
+
+      // First, create cylinder document in Firestore with pending status
       final cylinderId = await firestoreService.registerCylinder(
-        serialNumber: _serialNumberController.text.trim(),
+        serialNumber: serialNumber,
         manufacturer: userProfile.fullName,
         manufacturerId: user.uid,
         cylinderType: _selectedType,
-        weight: capacity, // Using capacity as weight for now
+        weight: capacity,
         capacity: capacity,
-        batchNumber: _batchNumberController.text.trim(),
+        batchNumber: batchNumber,
       );
 
       if (!mounted) return;
 
-      Navigator.pop(context, true); // Return true to indicate success
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Cylinder registered successfully! NFT minting in progress...',
-            style: AppTextStyles.buttonSecondary.copyWith(color: AppColors.white),
-          ),
-          backgroundColor: AppColors.safetyGreen,
-          behavior: SnackBarBehavior.floating,
-          duration: const Duration(seconds: 4),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
+      // Call blockchain webhook to mint NFT
+      debugPrint('🔗 Calling blockchain webhook...');
+      final response = await blockchainService.mintCylinderNFTWithRetry(
+        serialNumber: serialNumber,
+        manufacturer: userProfile.fullName,
+        manufacturerId: user.uid,
+        cylinderType: _selectedType,
+        weight: capacity,
+        capacity: capacity,
+        batchNumber: batchNumber,
       );
 
-      debugPrint('✅ Cylinder registered: $cylinderId');
+      if (!mounted) return;
+
+      if (response.success && 
+          response.transactionHash != null && 
+          response.contractAddress != null && 
+          response.tokenId != null) {
+        // Success! Update Firestore with blockchain data
+        await firestoreService.updateCylinderBlockchainData(
+          cylinderId: cylinderId,
+          transactionHash: response.transactionHash!,
+          contractAddress: response.contractAddress!,
+          tokenId: response.tokenId!,
+        );
+
+        // Show success UI
+        setState(() {
+          _isLoading = false;
+          _showSuccess = true;
+          _transactionHash = response.transactionHash;
+          _contractAddress = response.contractAddress;
+          _tokenId = response.tokenId;
+        });
+
+        debugPrint('✅ Cylinder registered and minted successfully!');
+      } else {
+        // Minting failed - update status to error
+        await firestoreService.updateCylinderStatus(
+          cylinderId: cylinderId,
+          status: CylinderStatus.error,
+          errorMessage: response.errorMessage ?? 'NFT minting failed',
+        );
+
+        throw Exception(response.errorMessage ?? 'Failed to mint NFT');
+      }
     } catch (e) {
       debugPrint('❌ Error registering cylinder: $e');
 
       if (!mounted) return;
 
+      setState(() {
+        _isLoading = false;
+      });
+
+      _showErrorSnackBar('Error: ${e.toString()}');
+    }
+  }
+
+  void _showErrorSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          message,
+          style: AppTextStyles.buttonSecondary.copyWith(color: AppColors.white),
+        ),
+        backgroundColor: Colors.red,
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 4),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+      ),
+    );
+  }
+
+  void _handleClose() {
+    Navigator.pop(context, _showSuccess);
+  }
+
+  void _openBlockchainExplorer() {
+    if (_transactionHash != null) {
+      // For now, just show the hash in a snackbar
+      // In production, use url_launcher to open the actual block explorer
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Error: ${e.toString()}',
-            style: AppTextStyles.buttonSecondary.copyWith(color: AppColors.white),
+            'Transaction: $_transactionHash\nOpen in block explorer',
+            style: const TextStyle(color: AppColors.white),
           ),
-          backgroundColor: Colors.red,
+          backgroundColor: AppColors.accentPurple,
           behavior: SnackBarBehavior.floating,
-          duration: const Duration(seconds: 4),
+          duration: const Duration(seconds: 5),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
         ),
       );
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
     }
   }
 }

@@ -25,6 +25,9 @@ dependencies:
   # State Management & Utils
   provider: ^6.1.2  # For state management
   
+  # HTTP client
+  http: ^1.1.0  # For making HTTP requests to webhook
+  
   # For glassmorphism effects (using built-in BackdropFilter)
 
 dev_dependencies:

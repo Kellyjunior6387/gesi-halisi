@@ -21,6 +21,43 @@ enum CylinderStatus {
   }
 }
 
+/// Blockchain data for a cylinder NFT
+class BlockchainData {
+  final String? transactionHash;
+  final String? contractAddress;
+  final String? tokenId;
+
+  BlockchainData({
+    this.transactionHash,
+    this.contractAddress,
+    this.tokenId,
+  });
+
+  factory BlockchainData.fromMap(Map<String, dynamic>? data) {
+    if (data == null) {
+      return BlockchainData();
+    }
+    return BlockchainData(
+      transactionHash: data['transactionHash'],
+      contractAddress: data['contractAddress'],
+      tokenId: data['tokenId']?.toString(),
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'transactionHash': transactionHash,
+      'contractAddress': contractAddress,
+      'tokenId': tokenId,
+    };
+  }
+
+  bool get isValid => 
+      transactionHash != null && 
+      contractAddress != null && 
+      tokenId != null;
+}
+
 class CylinderModel {
   final String id;
   final String serialNumber;
@@ -31,6 +68,8 @@ class CylinderModel {
   final double capacity; // in kg
   final String batchNumber;
   final CylinderStatus status;
+  final BlockchainData? blockchain;
+  // Keep legacy fields for backward compatibility
   final String? tokenId;
   final String? transactionHash;
   final int? blockNumber;
@@ -51,6 +90,7 @@ class CylinderModel {
     required this.capacity,
     required this.batchNumber,
     required this.status,
+    this.blockchain,
     this.tokenId,
     this.transactionHash,
     this.blockNumber,
@@ -79,8 +119,9 @@ class CylinderModel {
         (e) => e.name == data['status'],
         orElse: () => CylinderStatus.pending,
       ),
-      tokenId: data['tokenId']?.toString(),
-      transactionHash: data['transactionHash'],
+      blockchain: BlockchainData.fromMap(data['blockchain']),
+      tokenId: data['tokenId']?.toString() ?? data['blockchain']?['tokenId']?.toString(),
+      transactionHash: data['transactionHash'] ?? data['blockchain']?['transactionHash'],
       blockNumber: data['blockNumber'],
       gasUsed: data['gasUsed'],
       blockchainNetwork: data['blockchainNetwork'],
@@ -111,6 +152,7 @@ class CylinderModel {
       'capacity': capacity,
       'batchNumber': batchNumber,
       'status': status.name,
+      if (blockchain != null) 'blockchain': blockchain!.toMap(),
       'tokenId': tokenId,
       'transactionHash': transactionHash,
       'blockNumber': blockNumber,
@@ -134,6 +176,7 @@ class CylinderModel {
     double? capacity,
     String? batchNumber,
     CylinderStatus? status,
+    BlockchainData? blockchain,
     String? tokenId,
     String? transactionHash,
     int? blockNumber,
@@ -154,6 +197,7 @@ class CylinderModel {
       capacity: capacity ?? this.capacity,
       batchNumber: batchNumber ?? this.batchNumber,
       status: status ?? this.status,
+      blockchain: blockchain ?? this.blockchain,
       tokenId: tokenId ?? this.tokenId,
       transactionHash: transactionHash ?? this.transactionHash,
       blockNumber: blockNumber ?? this.blockNumber,
