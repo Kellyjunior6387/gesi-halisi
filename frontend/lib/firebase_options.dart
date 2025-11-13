@@ -4,6 +4,9 @@ import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
 import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, kIsWeb, TargetPlatform;
 
+// read API key from --dart-define at compile time to avoid hardcoding secrets in source
+const String _firebaseApiKey = String.fromEnvironment('FIREBASE_API_KEY', defaultValue: '');
+
 /// Default [FirebaseOptions] for use with your Firebase apps.
 ///
 /// Example:
@@ -41,7 +44,7 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyCCSs5LZyFU-tLZDbkNRQi8Hg7RO0tLcm4',
+    apiKey: _firebaseApiKey,
     appId: '1:230339353147:web:a8ff4bbb49f7b6896d1a1e',
     messagingSenderId: '230339353147',
     projectId: 'gesi-halisi-acc8d',
@@ -51,7 +54,7 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyB5BJm7cdIdRezzZIRQY8k7oibXSOAFtkk',
+    apiKey: _firebaseApiKey,
     appId: '1:230339353147:android:902252d0b8915baa6d1a1e',
     messagingSenderId: '230339353147',
     projectId: 'gesi-halisi-acc8d',
@@ -59,7 +62,7 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyC3jiZ0WWDAIsW3EeqU3yjSR1vMwHbiPfU',
+    apiKey: _firebaseApiKey,
     appId: '1:230339353147:ios:b233dd466630b4db6d1a1e',
     messagingSenderId: '230339353147',
     projectId: 'gesi-halisi-acc8d',
@@ -68,7 +71,7 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyC3jiZ0WWDAIsW3EeqU3yjSR1vMwHbiPfU',
+    apiKey: _firebaseApiKey,
     appId: '1:230339353147:ios:b233dd466630b4db6d1a1e',
     messagingSenderId: '230339353147',
     projectId: 'gesi-halisi-acc8d',
@@ -77,7 +80,7 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyCCSs5LZyFU-tLZDbkNRQi8Hg7RO0tLcm4',
+    apiKey: _firebaseApiKey,
     appId: '1:230339353147:web:b6aaefbabfd9a1156d1a1e',
     messagingSenderId: '230339353147',
     projectId: 'gesi-halisi-acc8d',
