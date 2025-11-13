@@ -4,6 +4,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show debugPrint;
+import 'package:frontend/models/cylinder_model.dart';
 import 'dart:ui' show ImageFilter;
 import '../../constants/app_theme.dart';
 import '../../services/firestore_service.dart';
@@ -87,7 +88,7 @@ class _RegisterCylinderDialogState extends State<RegisterCylinderDialog> {
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(50),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.check_circle,
                   color: AppColors.safetyGreen,
                   size: 32,
@@ -143,11 +144,11 @@ class _RegisterCylinderDialogState extends State<RegisterCylinderDialog> {
                     child: InkWell(
                       onTap: _openBlockchainExplorer,
                       borderRadius: BorderRadius.circular(12),
-                      child: const Row(
+                      child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(Icons.open_in_new, color: AppColors.white, size: 20),
-                          SizedBox(width: AppSpacing.sm),
+                          const SizedBox(width: AppSpacing.sm),
                           Text(
                             'View on Explorer',
                             style: AppTextStyles.buttonPrimary,
@@ -170,7 +171,7 @@ class _RegisterCylinderDialogState extends State<RegisterCylinderDialog> {
                     child: InkWell(
                       onTap: _handleClose,
                       borderRadius: BorderRadius.circular(12),
-                      child: const Center(
+                      child: Center(
                         child: Text(
                           'Done',
                           style: AppTextStyles.buttonPrimary,
@@ -213,7 +214,7 @@ class _RegisterCylinderDialogState extends State<RegisterCylinderDialog> {
                 const SizedBox(height: 4),
                 Text(
                   value.length > 40 ? '${value.substring(0, 20)}...${value.substring(value.length - 20)}' : value,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.white,
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
@@ -249,7 +250,7 @@ class _RegisterCylinderDialogState extends State<RegisterCylinderDialog> {
                   gradient: AppGradients.accentGradient,
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.add_circle_outline,
                   color: AppColors.white,
                   size: 24,
@@ -262,7 +263,7 @@ class _RegisterCylinderDialogState extends State<RegisterCylinderDialog> {
               ),
               const Spacer(),
               IconButton(
-                icon: const Icon(Icons.close, color: AppColors.white),
+                icon: Icon(Icons.close, color: AppColors.white),
                 onPressed: () => Navigator.pop(context),
               ),
             ],
@@ -270,77 +271,73 @@ class _RegisterCylinderDialogState extends State<RegisterCylinderDialog> {
         ),
 
         // Form
-                Flexible(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.all(AppSpacing.lg),
-                    child: Form(
-                      key: _formKey,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _buildTextField(
-                            controller: _serialNumberController,
-                            label: 'Serial Number',
-                            hint: 'Enter cylinder serial number',
-                            icon: Icons.tag,
-                          ),
-                          
-                          const SizedBox(height: AppSpacing.md),
-                          
-                          _buildTypeDropdown(),
-                          
-                          const SizedBox(height: AppSpacing.md),
-                          
-                          _buildTextField(
-                            controller: _capacityController,
-                            label: 'Capacity (kg)',
-                            hint: 'Enter capacity',
-                            icon: Icons.scale,
-                            keyboardType: TextInputType.number,
-                          ),
-                          
-                          const SizedBox(height: AppSpacing.md),
-                          
-                          _buildTextField(
-                            controller: _batchNumberController,
-                            label: 'Batch Number',
-                            hint: 'Enter batch number',
-                            icon: Icons.inventory_2,
-                          ),
-                          
-                          const SizedBox(height: AppSpacing.xl),
-                          
-                          // Buttons
-                          Row(
-                            children: [
-                              Expanded(
-                                child: _buildButton(
-                                  label: 'Cancel',
-                                  onTap: _isLoading ? null : () => Navigator.pop(context),
-                                  isPrimary: false,
-                                ),
-                              ),
-                              const SizedBox(width: AppSpacing.md),
-                              Expanded(
-                                child: _buildButton(
-                                  label: _isLoading ? 'Minting NFT...' : 'Register & Mint',
-                                  onTap: _isLoading ? null : _handleRegister,
-                                  isPrimary: true,
-                                  isLoading: _isLoading,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
+        Flexible(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(AppSpacing.lg),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildTextField(
+                    controller: _serialNumberController,
+                    label: 'Serial Number',
+                    hint: 'Enter cylinder serial number',
+                    icon: Icons.tag,
                   ),
-                ),
-              ],
+
+                  const SizedBox(height: AppSpacing.md),
+
+                  _buildTypeDropdown(),
+
+                  const SizedBox(height: AppSpacing.md),
+
+                  _buildTextField(
+                    controller: _capacityController,
+                    label: 'Capacity (kg)',
+                    hint: 'Enter capacity',
+                    icon: Icons.scale,
+                    keyboardType: TextInputType.number,
+                  ),
+
+                  const SizedBox(height: AppSpacing.md),
+
+                  _buildTextField(
+                    controller: _batchNumberController,
+                    label: 'Batch Number',
+                    hint: 'Enter batch number',
+                    icon: Icons.inventory_2,
+                  ),
+
+                  const SizedBox(height: AppSpacing.xl),
+
+                  // Buttons
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildButton(
+                          label: 'Cancel',
+                          onTap: _isLoading ? null : () => Navigator.pop(context),
+                          isPrimary: false,
+                        ),
+                      ),
+                      const SizedBox(width: AppSpacing.md),
+                      Expanded(
+                        child: _buildButton(
+                          label: _isLoading ? 'Minting NFT...' : 'Register & Mint',
+                          onTap: _isLoading ? null : _handleRegister,
+                          isPrimary: true,
+                          isLoading: _isLoading,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ),
-      ),
+      ],
     );
   }
 
@@ -472,7 +469,7 @@ class _RegisterCylinderDialogState extends State<RegisterCylinderDialog> {
           borderRadius: BorderRadius.circular(12),
           child: Center(
             child: isLoading
-                ? const SizedBox(
+                ? SizedBox(
                     width: 20,
                     height: 20,
                     child: CircularProgressIndicator(
@@ -583,11 +580,11 @@ class _RegisterCylinderDialogState extends State<RegisterCylinderDialog> {
         debugPrint('✅ Cylinder registered and minted successfully!');
       } else {
         // Minting failed - update status to error
-        await firestoreService.updateCylinderStatus(
-          cylinderId: cylinderId,
-          status: CylinderStatus.error,
-          errorMessage: response.errorMessage ?? 'NFT minting failed',
-        );
+                await firestoreService.updateCylinderStatus(
+                  cylinderId: cylinderId,
+                  status: CylinderStatus.error,
+                  errorMessage: response.errorMessage ?? 'NFT minting failed',
+                );
 
         throw Exception(response.errorMessage ?? 'Failed to mint NFT');
       }
