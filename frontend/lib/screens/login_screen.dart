@@ -24,6 +24,7 @@ import '../services/firestore_service.dart';
 import '../models/user_model.dart';
 import 'signup_screen.dart';
 import 'dashboard/manufacturer_dashboard.dart';
+import 'dashboard/customer_dashboard.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -352,9 +353,15 @@ class _LoginScreenState extends State<LoginScreen> {
                 builder: (context) => const ManufacturerDashboard(),
               ),
             );
+          } else if (userProfile.role == UserRole.customer) {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder: (context) => const CustomerDashboard(),
+              ),
+            );
           } else {
             _showSuccessSnackBar('Welcome back, ${userProfile.firstName}!');
-            // TODO: Navigate to appropriate dashboard
+            // TODO: Navigate to distributor dashboard
           }
         } else if (mounted) {
           // User profile not found in Firestore
@@ -400,6 +407,12 @@ class _LoginScreenState extends State<LoginScreen> {
                 builder: (context) => const ManufacturerDashboard(),
               ),
             );
+          } else if (userProfile.role == UserRole.customer) {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder: (context) => const CustomerDashboard(),
+              ),
+            );
           } else {
             _showSuccessSnackBar('Welcome back, ${userProfile.firstName}!');
           }
@@ -441,6 +454,12 @@ class _LoginScreenState extends State<LoginScreen> {
             Navigator.of(context).pushReplacement(
               MaterialPageRoute(
                 builder: (context) => const ManufacturerDashboard(),
+              ),
+            );
+          } else if (userProfile.role == UserRole.customer) {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder: (context) => const CustomerDashboard(),
               ),
             );
           } else {
