@@ -40,6 +40,9 @@ class BlockchainService {
   /// 
   /// Sends cylinder metadata to webhook which handles blockchain minting
   /// Returns blockchain data (transactionHash, contractAddress, tokenId)
+  /// 
+  /// Note: This method does NOT retry on errors. The caller should handle
+  /// errors and decide whether to retry based on the error type.
   Future<BlockchainResponse> mintCylinderNFT({
     required String serialNumber,
     required String manufacturer,
@@ -81,6 +84,7 @@ class BlockchainService {
       debugPrint('📥 Response status: ${response.statusCode}');
       debugPrint('📥 Response body: ${response.body}');
 
+      // Handle success responses (200, 201)
       if (response.statusCode == 200 || response.statusCode == 201) {
         final jsonResponse = jsonDecode(response.body) as Map<String, dynamic>;
         final blockchainResponse = BlockchainResponse.fromJson(jsonResponse);
@@ -95,9 +99,28 @@ class BlockchainService {
         }
         
         return blockchainResponse;
-      } else {
-        throw Exception('Webhook returned status ${response.statusCode}: ${response.body}');
+      } 
+      
+      // Handle client errors (400-499) - these should not be retried
+      if (response.statusCode >= 400 && response.statusCode < 500) {
+        debugPrint('❌ Client error (${response.statusCode}): ${response.body}');
+        String errorMessage = 'Client error: ${response.statusCode}';
+        
+        try {
+          final errorResponse = jsonDecode(response.body) as Map<String, dynamic>;
+          errorMessage = errorResponse['error'] ?? errorResponse['message'] ?? errorMessage;
+        } catch (e) {
+          errorMessage = response.body.isNotEmpty ? response.body : errorMessage;
+        }
+        
+        return BlockchainResponse(
+          success: false,
+          errorMessage: errorMessage,
+        );
       }
+      
+      // Handle server errors (500+) or other status codes
+      throw Exception('Webhook returned status ${response.statusCode}: ${response.body}');
     } catch (e) {
       debugPrint('❌ Error calling blockchain webhook: $e');
       return BlockchainResponse(
@@ -105,54 +128,5 @@ class BlockchainService {
         errorMessage: e.toString(),
       );
     }
-  }
-
-  /// Retry logic for minting NFT
-  /// 
-  /// Attempts to mint up to maxRetries times with exponential backoff
-  Future<BlockchainResponse> mintCylinderNFTWithRetry({
-    required String serialNumber,
-    required String manufacturer,
-    required String manufacturerId,
-    required String cylinderType,
-    required double weight,
-    required double capacity,
-    required String batchNumber,
-    int maxRetries = 3,
-  }) async {
-    int attempt = 0;
-    
-    while (attempt < maxRetries) {
-      attempt++;
-      debugPrint('🔄 Attempt $attempt of $maxRetries');
-      
-      final response = await mintCylinderNFT(
-        serialNumber: serialNumber,
-        manufacturer: manufacturer,
-        manufacturerId: manufacturerId,
-        cylinderType: cylinderType,
-        weight: weight,
-        capacity: capacity,
-        batchNumber: batchNumber,
-      );
-
-      if (response.success) {
-        return response;
-      }
-
-      if (attempt < maxRetries) {
-        // Exponential backoff: wait 2^attempt seconds before retry
-        final waitSeconds = (1 << attempt); // 2, 4, 8 seconds
-        debugPrint('⏳ Waiting $waitSeconds seconds before retry...');
-        await Future.delayed(Duration(seconds: waitSeconds));
-      }
-    }
-
-    // All retries failed
-    debugPrint('❌ All $maxRetries attempts failed');
-    return BlockchainResponse(
-      success: false,
-      errorMessage: 'Failed after $maxRetries attempts',
-    );
   }
 }

@@ -544,7 +544,7 @@ class _RegisterCylinderDialogState extends State<RegisterCylinderDialog> {
 
       // Call blockchain webhook to mint NFT
       debugPrint('🔗 Calling blockchain webhook...');
-      final response = await blockchainService.mintCylinderNFTWithRetry(
+      final response = await blockchainService.mintCylinderNFT(
         serialNumber: serialNumber,
         manufacturer: userProfile.fullName,
         manufacturerId: user.uid,
