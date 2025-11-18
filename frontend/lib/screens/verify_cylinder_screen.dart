@@ -72,7 +72,7 @@ class _VerifyCylinderScreenState extends State<VerifyCylinderScreen> {
           ),
           const SizedBox(width: AppSpacing.sm),
           Text(
-            'Thibitisha Silinda',
+            'Verify Cylinder',
             style: AppTextStyles.onboardingTitle.copyWith(fontSize: 20),
           ),
         ],
@@ -102,7 +102,7 @@ class _VerifyCylinderScreenState extends State<VerifyCylinderScreen> {
         Padding(
           padding: const EdgeInsets.all(AppSpacing.lg),
           child: Text(
-            'Elekeza kamera kwenye QR code ya silinda',
+            'Point camera at cylinder QR code',
             style: AppTextStyles.onboardingDescription.copyWith(
               color: AppColors.lightGray,
             ),
@@ -142,7 +142,7 @@ class _VerifyCylinderScreenState extends State<VerifyCylinderScreen> {
               });
             },
             icon: const Icon(Icons.refresh),
-            label: const Text('Rudia Scan'),
+            label: const Text('Scan Again'),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.accentPurple,
               foregroundColor: AppColors.white,
@@ -170,7 +170,7 @@ class _VerifyCylinderScreenState extends State<VerifyCylinderScreen> {
           ),
           SizedBox(height: AppSpacing.lg),
           Text(
-            'Inathibitisha...',
+            'Verifying...',
             style: TextStyle(
               color: AppColors.white,
               fontSize: 18,
@@ -205,7 +205,7 @@ class _VerifyCylinderScreenState extends State<VerifyCylinderScreen> {
           const SizedBox(height: AppSpacing.xl),
           
           Text(
-            '✅ Silinda Halisi',
+            '✅ Verified Cylinder',
             style: AppTextStyles.onboardingTitle.copyWith(
               color: AppColors.safetyGreen,
               fontSize: 28,
@@ -215,7 +215,7 @@ class _VerifyCylinderScreenState extends State<VerifyCylinderScreen> {
           const SizedBox(height: AppSpacing.md),
           
           Text(
-            'Silinda hii imethibitishwa na ni halisi',
+            'This cylinder has been verified and is genuine',
             style: AppTextStyles.onboardingDescription.copyWith(
               color: AppColors.lightGray,
             ),
@@ -239,7 +239,7 @@ class _VerifyCylinderScreenState extends State<VerifyCylinderScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'Maelezo ya Silinda',
+                  'Cylinder Details',
                   style: TextStyle(
                     color: AppColors.white,
                     fontSize: 20,
@@ -247,15 +247,15 @@ class _VerifyCylinderScreenState extends State<VerifyCylinderScreen> {
                   ),
                 ),
                 const SizedBox(height: AppSpacing.lg),
-                _buildDetailRow('Nambari ya Silinda', cylinder.serialNumber),
-                _buildDetailRow('Mtengenezaji', cylinder.manufacturer),
-                _buildDetailRow('Aina', cylinder.cylinderType),
-                _buildDetailRow('Uzito', '${cylinder.weight} kg'),
-                _buildDetailRow('Uwezo', '${cylinder.capacity} kg'),
+                _buildDetailRow('Serial Number', cylinder.serialNumber),
+                _buildDetailRow('Manufacturer', cylinder.manufacturer),
+                _buildDetailRow('Type', cylinder.cylinderType),
+                _buildDetailRow('Weight', '${cylinder.weight} kg'),
+                _buildDetailRow('Capacity', '${cylinder.capacity} kg'),
                 _buildDetailRow('Batch', cylinder.batchNumber),
                 if (cylinder.mintedAt != null)
                   _buildDetailRow(
-                    'Tarehe',
+                    'Date',
                     _formatDate(cylinder.mintedAt!),
                   ),
               ],
@@ -284,7 +284,7 @@ class _VerifyCylinderScreenState extends State<VerifyCylinderScreen> {
                 ),
               ),
               child: const Text(
-                'Thibitisha Silinda Nyingine',
+                'Verify Another Cylinder',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -322,7 +322,7 @@ class _VerifyCylinderScreenState extends State<VerifyCylinderScreen> {
           const SizedBox(height: AppSpacing.xl),
           
           Text(
-            '❌ Silinda Batili',
+            '❌ Invalid Cylinder',
             style: AppTextStyles.onboardingTitle.copyWith(
               color: Colors.red,
               fontSize: 28,
@@ -332,7 +332,7 @@ class _VerifyCylinderScreenState extends State<VerifyCylinderScreen> {
           const SizedBox(height: AppSpacing.md),
           
           Text(
-            _errorMessage ?? 'Silinda hii haikupatikana katika mfumo wetu',
+            _errorMessage ?? 'This cylinder was not found in our system',
             style: AppTextStyles.onboardingDescription.copyWith(
               color: AppColors.lightGray,
             ),
@@ -362,7 +362,7 @@ class _VerifyCylinderScreenState extends State<VerifyCylinderScreen> {
                 const SizedBox(width: AppSpacing.md),
                 Expanded(
                   child: Text(
-                    'Usitumie silinda hii. Inaweza kuwa bandia au hatari.',
+                    'Do not use this cylinder. It may be counterfeit or dangerous.',
                     style: TextStyle(
                       color: AppColors.lightGray.withOpacity(0.9),
                       fontSize: 14,
@@ -395,7 +395,7 @@ class _VerifyCylinderScreenState extends State<VerifyCylinderScreen> {
                 ),
               ),
               child: const Text(
-                'Jaribu Tena',
+                'Try Again',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -459,7 +459,7 @@ class _VerifyCylinderScreenState extends State<VerifyCylinderScreen> {
       
       if (cylinderId == null) {
         setState(() {
-          _errorMessage = 'QR code si sahihi';
+          _errorMessage = 'Invalid QR code';
           _isVerifying = false;
         });
         return;
@@ -482,20 +482,20 @@ class _VerifyCylinderScreenState extends State<VerifyCylinderScreen> {
           });
         } else {
           setState(() {
-            _errorMessage = 'Silinda bado haijakamilika';
+            _errorMessage = 'Cylinder not yet completed';
             _isVerifying = false;
           });
         }
       } else {
         setState(() {
-          _errorMessage = 'Silinda hii haikupatikana';
+          _errorMessage = 'This cylinder was not found';
           _isVerifying = false;
         });
       }
     } catch (e) {
       debugPrint('Error verifying cylinder: $e');
       setState(() {
-        _errorMessage = 'Hitilafu imetokea. Jaribu tena.';
+        _errorMessage = 'An error occurred. Please try again.';
         _isVerifying = false;
       });
     }

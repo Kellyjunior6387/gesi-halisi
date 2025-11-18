@@ -1,9 +1,9 @@
 /// Chatbot Screen for Gesi Halisi Application
 ///
-/// AI-powered chatbot that speaks Swahili and helps users understand the app
+/// AI-powered chatbot that helps users understand the app
 /// Features:
-/// - OpenAI GPT-4o-mini integration
-/// - Swahili conversational interface
+/// - Groq API integration (free)
+/// - English conversational interface
 /// - FAQ assistance
 
 import 'package:flutter/material.dart';
@@ -24,22 +24,22 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
   final List<ChatMessage> _messages = [];
   bool _isLoading = false;
 
-  // OpenAI API configuration
+  // Groq API configuration (free alternative to OpenAI)
   // Note: In production, this should be stored securely (e.g., environment variables or backend)
-  static const String _openAIApiKey = 'YOUR_OPENAI_API_KEY'; // Replace with actual key
-  static const String _openAIModel = 'gpt-4o-mini';
+  static const String _groqApiKey = 'YOUR_GROQ_API_KEY'; // Replace with actual key from https://console.groq.com
+  static const String _groqModel = 'llama-3.1-70b-versatile'; // Fast and capable model
   
   final String _systemPrompt = '''
-You are a helpful Swahili assistant explaining how to use a gas cylinder verification app called "SafeCyl". 
-Use simple, conversational Swahili and guide users on actions like kuscan nambari, kuthibitisha silinda, or kuuliza kuhusu usalama.
+You are a helpful assistant explaining how to use a gas cylinder verification app called "SafeCyl". 
+Use simple, conversational English and guide users on actions like scanning QR codes, verifying cylinders, and understanding safety.
 
 Key features of the app:
-1. Thibitisha Silinda (Verify Cylinder) - Users can scan QR codes on gas cylinders to verify authenticity
+1. Verify Cylinder - Users can scan QR codes on gas cylinders to verify authenticity
 2. The app uses blockchain technology to ensure cylinders are genuine
 3. Users can see cylinder details like serial number, manufacturer, weight, capacity, and batch number
 4. Only verified, registered cylinders will show as valid
 
-Be friendly, helpful, and use simple Swahili. Answer questions about:
+Be friendly, helpful, and use simple English. Answer questions about:
 - How to scan QR codes
 - What information they'll see
 - How to know if a cylinder is safe
@@ -55,7 +55,7 @@ Keep responses concise and easy to understand.
     // Add welcome message
     _messages.add(
       ChatMessage(
-        text: 'Habari! Mimi ni msaidizi wako wa SafeCyl. Niko hapa kukusaidia kuelewa jinsi ya kutumia programu hii na kuthibitisha silinda. Unaweza kuniuliza chochote!',
+        text: 'Hello! I\'m your SafeCyl assistant. I\'m here to help you understand how to use this app and verify cylinders. Ask me anything!',
         isUser: false,
         timestamp: DateTime.now(),
       ),
@@ -137,11 +137,11 @@ Keep responses concise and easy to understand.
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'SafeCyl Msaidizi',
+                  'SafeCyl Assistant',
                   style: AppTextStyles.onboardingTitle.copyWith(fontSize: 18),
                 ),
                 Text(
-                  'Uko mtandaoni',
+                  'Online',
                   style: TextStyle(
                     color: AppColors.safetyGreen,
                     fontSize: 12,
@@ -294,7 +294,7 @@ Keep responses concise and easy to understand.
                 controller: _messageController,
                 style: const TextStyle(color: AppColors.white),
                 decoration: const InputDecoration(
-                  hintText: 'Andika ujumbe...',
+                  hintText: 'Type your message...',
                   hintStyle: TextStyle(color: AppColors.lightGray),
                   border: InputBorder.none,
                 ),
@@ -350,21 +350,21 @@ Keep responses concise and easy to understand.
 
     try {
       // Check if API key is set
-      if (_openAIApiKey == 'YOUR_OPENAI_API_KEY') {
+      if (_groqApiKey == 'YOUR_GROQ_API_KEY') {
         // Fallback to mock responses for demo purposes
         await _getMockResponse(userMessage);
         return;
       }
 
-      // Make API call to OpenAI
+      // Make API call to Groq
       final response = await http.post(
-        Uri.parse('https://api.openai.com/v1/chat/completions'),
+        Uri.parse('https://api.groq.com/openai/v1/chat/completions'),
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer $_openAIApiKey',
+          'Authorization': 'Bearer $_groqApiKey',
         },
         body: json.encode({
-          'model': _openAIModel,
+          'model': _groqModel,
           'messages': [
             {'role': 'system', 'content': _systemPrompt},
             {'role': 'user', 'content': userMessage},
@@ -406,35 +406,35 @@ Keep responses concise and easy to understand.
     String response = '';
     final lowerMessage = userMessage.toLowerCase();
 
-    if (lowerMessage.contains('scan') || lowerMessage.contains('kuscan')) {
-      response = 'Ili kuscan QR code:\n'
-          '1. Bonyeza "Thibitisha Silinda" kwenye dashboard\n'
-          '2. Ruhusu app kutumia kamera\n'
-          '3. Elekeza kamera kwenye QR code iliyopo kwenye silinda\n'
-          '4. App itakusaidia kuthibitisha kama ni halisi';
-    } else if (lowerMessage.contains('usalama') || lowerMessage.contains('safety')) {
-      response = 'Usalama ni muhimu sana! SafeCyl inakusaidia:\n'
-          '• Kuthibitisha silinda ni halisi\n'
-          '• Kuona taarifa za mtengenezaji\n'
-          '• Kujua historia ya silinda\n'
-          '• Kuepuka silinda bandia au hatari';
-    } else if (lowerMessage.contains('invalid') || lowerMessage.contains('batili')) {
-      response = 'Kama silinda inaonyesha "Batili":\n'
-          '• Usitumie silinda hiyo\n'
-          '• Inaweza kuwa bandia\n'
-          '• Ripoti kwa muuzaji\n'
-          '• Nunua silinda kutoka mahali pa kuaminika';
-    } else if (lowerMessage.contains('taarifa') || lowerMessage.contains('information')) {
-      response = 'Utaona taarifa hizi:\n'
-          '• Nambari ya silinda (Serial Number)\n'
-          '• Mtengenezaji (Manufacturer)\n'
-          '• Uzito na uwezo\n'
+    if (lowerMessage.contains('scan') || lowerMessage.contains('how')) {
+      response = 'To scan a QR code:\n'
+          '1. Click "Verify Cylinder" on the dashboard\n'
+          '2. Allow the app to use your camera\n'
+          '3. Point the camera at the QR code on the cylinder\n'
+          '4. The app will verify if it\'s genuine';
+    } else if (lowerMessage.contains('safety') || lowerMessage.contains('safe')) {
+      response = 'Safety is very important! SafeCyl helps you:\n'
+          '• Verify the cylinder is genuine\n'
+          '• View manufacturer information\n'
+          '• Know the cylinder history\n'
+          '• Avoid counterfeit or dangerous cylinders';
+    } else if (lowerMessage.contains('invalid') || lowerMessage.contains('fake')) {
+      response = 'If a cylinder shows "Invalid":\n'
+          '• Do not use that cylinder\n'
+          '• It may be counterfeit\n'
+          '• Report to the seller\n'
+          '• Purchase cylinders from trusted sources';
+    } else if (lowerMessage.contains('information') || lowerMessage.contains('details')) {
+      response = 'You will see this information:\n'
+          '• Serial Number\n'
+          '• Manufacturer\n'
+          '• Weight and capacity\n'
           '• Batch number\n'
-          '• Tarehe ya uzalishaji';
+          '• Manufacturing date';
     } else {
-      response = 'Asante kwa swali lako! SafeCyl inakusaidia kuthibitisha silinda za gesi. '
-          'Unaweza kuscan QR code kwenye silinda na kupata taarifa kamili. '
-          'Je, unahitaji msaada zaidi?';
+      response = 'Thank you for your question! SafeCyl helps you verify gas cylinders. '
+          'You can scan QR codes on cylinders and get complete information. '
+          'Do you need more help?';
     }
 
     setState(() {

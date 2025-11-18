@@ -79,7 +79,7 @@ class _CustomerDashboardState extends State<CustomerDashboard> {
         backgroundColor: AppColors.accentPurple,
         icon: const Icon(Icons.chat_bubble_outline, color: AppColors.white),
         label: const Text(
-          'Msaada',
+          'Help',
           style: TextStyle(
             color: AppColors.white,
             fontWeight: FontWeight.bold,
@@ -125,7 +125,7 @@ class _CustomerDashboardState extends State<CustomerDashboard> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Karibu!',
+          'Welcome!',
           style: AppTextStyles.onboardingTitle.copyWith(
             fontSize: 32,
             fontWeight: FontWeight.bold,
@@ -133,7 +133,7 @@ class _CustomerDashboardState extends State<CustomerDashboard> {
         ),
         const SizedBox(height: AppSpacing.sm),
         Text(
-          'Thibitisha uhalisi wa silinda yako',
+          'Verify the authenticity of your cylinder',
           style: AppTextStyles.onboardingDescription.copyWith(
             color: AppColors.lightGray,
           ),
@@ -149,8 +149,8 @@ class _CustomerDashboardState extends State<CustomerDashboard> {
         _buildGlassCard(
           icon: Icons.qr_code_scanner,
           iconColor: AppColors.accentPurple,
-          title: 'Thibitisha Silinda',
-          description: 'Scan QR code ya silinda',
+          title: 'Verify Cylinder',
+          description: 'Scan cylinder QR code',
           onTap: () {
             Navigator.push(
               context,
@@ -167,8 +167,8 @@ class _CustomerDashboardState extends State<CustomerDashboard> {
         _buildGlassCard(
           icon: Icons.info_outline,
           iconColor: AppColors.blockchainBlue,
-          title: 'Jinsi Inavyofanya Kazi',
-          description: 'Jifunze kuhusu usalama wa silinda',
+          title: 'How It Works',
+          description: 'Learn about cylinder safety',
           onTap: () {
             _showHowItWorksDialog();
           },
@@ -269,7 +269,7 @@ class _CustomerDashboardState extends State<CustomerDashboard> {
               ),
               const SizedBox(width: AppSpacing.sm),
               const Text(
-                'Usalama Wako ni Muhimu',
+                'Your Safety is Important',
                 style: TextStyle(
                   color: AppColors.white,
                   fontSize: 18,
@@ -279,10 +279,10 @@ class _CustomerDashboardState extends State<CustomerDashboard> {
             ],
           ),
           const SizedBox(height: AppSpacing.md),
-          _buildInfoItem('✓', 'Thibitisha silinda kabla ya kununua'),
-          _buildInfoItem('✓', 'Hakikisha ni halisi kutoka kwa mtengenezaji'),
-          _buildInfoItem('✓', 'Pata taarifa za silinda kwa haraka'),
-          _buildInfoItem('✓', 'Uliza maswali yoyote kwa chatbot yetu'),
+          _buildInfoItem('✓', 'Verify cylinder before purchase'),
+          _buildInfoItem('✓', 'Ensure it\'s genuine from manufacturer'),
+          _buildInfoItem('✓', 'Get cylinder information quickly'),
+          _buildInfoItem('✓', 'Ask any questions to our chatbot'),
         ],
       ),
     );
@@ -326,7 +326,7 @@ class _CustomerDashboardState extends State<CustomerDashboard> {
           borderRadius: BorderRadius.circular(AppBorderRadius.lg),
         ),
         title: const Text(
-          'Jinsi Inavyofanya Kazi',
+          'How It Works',
           style: TextStyle(
             color: AppColors.white,
             fontWeight: FontWeight.bold,
@@ -338,20 +338,20 @@ class _CustomerDashboardState extends State<CustomerDashboard> {
           children: [
             _buildDialogStep(
               '1',
-              'Bonyeza "Thibitisha Silinda"',
-              'Fungua scanner ya QR code',
+              'Click "Verify Cylinder"',
+              'Open the QR code scanner',
             ),
             const SizedBox(height: AppSpacing.md),
             _buildDialogStep(
               '2',
               'Scan QR Code',
-              'Elekeza kamera kwenye QR code iliyopo kwenye silinda',
+              'Point camera at QR code on cylinder',
             ),
             const SizedBox(height: AppSpacing.md),
             _buildDialogStep(
               '3',
-              'Pata Matokeo',
-              'Angalia kama silinda ni halisi na taarifa zake',
+              'Get Results',
+              'Check if cylinder is genuine and view details',
             ),
           ],
         ),
@@ -359,7 +359,7 @@ class _CustomerDashboardState extends State<CustomerDashboard> {
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: const Text(
-              'Sawa',
+              'OK',
               style: TextStyle(color: AppColors.accentPurple),
             ),
           ),
