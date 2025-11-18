@@ -12,6 +12,14 @@ import 'dart:convert';
 import '../constants/app_theme.dart';
 import '../models/cylinder_model.dart';
 
+// Fallback definition for AppBorderRadius in case it's not exported by app_theme.dart
+// Adjust these values if you have a canonical source of truth for border radii.
+class AppBorderRadius {
+  static const double md = 12.0;
+  static const double lg = 20.0;
+  const AppBorderRadius._();
+}
+
 class QRCodeDisplayWidget extends StatelessWidget {
   final CylinderModel cylinder;
 

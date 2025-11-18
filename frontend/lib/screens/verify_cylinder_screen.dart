@@ -13,12 +13,23 @@ import '../constants/app_theme.dart';
 import '../models/cylinder_model.dart';
 import 'dart:convert';
 
+// Fallback definition for AppBorderRadius in case it's not provided
+// by app_theme.dart; keeps the same API used throughout the screen.
+class AppBorderRadius {
+  static const double sm = 8.0;
+  static const double md = 12.0;
+  static const double lg = 16.0;
+  static const double xl = 24.0;
+  const AppBorderRadius._();
+}
+
 class VerifyCylinderScreen extends StatefulWidget {
   const VerifyCylinderScreen({super.key});
 
   @override
   State<VerifyCylinderScreen> createState() => _VerifyCylinderScreenState();
 }
+
 
 class _VerifyCylinderScreenState extends State<VerifyCylinderScreen> {
   final MobileScannerController _scannerController = MobileScannerController();

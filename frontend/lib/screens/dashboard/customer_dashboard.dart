@@ -11,8 +11,14 @@ import 'dart:ui' show ImageFilter;
 import '../../constants/app_theme.dart';
 import '../../services/auth_service.dart';
 import 'package:provider/provider.dart';
-import '../verify_cylinder_screen.dart';
-import '../chatbot_screen.dart';
+import '../verify_cylinder_screen.dart' hide AppBorderRadius;
+import '../chatbot_screen.dart' hide AppBorderRadius;
+
+// Local definition to provide border radius sizes used in this file.
+class AppBorderRadius {
+  static const double md = 8.0;
+  static const double lg = 16.0;
+}
 
 class CustomerDashboard extends StatefulWidget {
   const CustomerDashboard({super.key});

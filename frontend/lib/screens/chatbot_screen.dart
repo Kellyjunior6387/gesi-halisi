@@ -185,7 +185,7 @@ Keep responses concise and easy to understand.
           gradient: message.isUser
               ? AppGradients.accentGradient
               : AppGradients.glassGradient,
-          borderRadius: BorderRadius.circular(AppBorderRadius.md),
+          borderRadius: AppBorderRadius.md,
           border: Border.all(
             color: message.isUser
                 ? Colors.transparent
@@ -225,7 +225,7 @@ Keep responses concise and easy to understand.
         padding: const EdgeInsets.all(AppSpacing.md),
         decoration: BoxDecoration(
           gradient: AppGradients.glassGradient,
-          borderRadius: BorderRadius.circular(AppBorderRadius.md),
+          borderRadius: AppBorderRadius.md,
           border: Border.all(
             color: AppColors.glassWhiteBorder,
             width: 1,
@@ -284,7 +284,7 @@ Keep responses concise and easy to understand.
               padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
               decoration: BoxDecoration(
                 gradient: AppGradients.glassGradient,
-                borderRadius: BorderRadius.circular(AppBorderRadius.lg),
+                borderRadius: AppBorderRadius.lg,
                 border: Border.all(
                   color: AppColors.glassWhiteBorder,
                   width: 1,
@@ -468,6 +468,11 @@ Keep responses concise and easy to understand.
     final minute = time.minute.toString().padLeft(2, '0');
     return '$hour:$minute';
   }
+}
+
+class AppBorderRadius {
+  static const BorderRadius md = BorderRadius.all(Radius.circular(12));
+  static const BorderRadius lg = BorderRadius.all(Radius.circular(18));
 }
 
 class ChatMessage {
