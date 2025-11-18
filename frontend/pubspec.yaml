@@ -28,6 +28,10 @@ dependencies:
   # HTTP client
   http: ^1.1.0  # For making HTTP requests to webhook
   
+  # QR Code functionality
+  qr_flutter: ^4.1.0  # For generating QR codes
+  mobile_scanner: ^5.2.3  # For scanning QR codes
+  
   # For glassmorphism effects (using built-in BackdropFilter)
 
 dev_dependencies:

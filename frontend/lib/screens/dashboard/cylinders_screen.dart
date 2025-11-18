@@ -9,7 +9,7 @@ import '../../services/firestore_service.dart';
 import '../../services/auth_service.dart';
 import '../../models/cylinder_model.dart';
 import 'package:provider/provider.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import '../../widgets/qr_code_display_widget.dart';
 
 class CylindersScreen extends StatefulWidget {
   const CylindersScreen({super.key});
@@ -324,6 +324,16 @@ class _CylindersScreenState extends State<CylindersScreen> {
               // Actions
               Row(
                 children: [
+                  if (isMinted) ...[
+                    Expanded(
+                      child: _buildActionButton(
+                        'QR Code',
+                        Icons.qr_code,
+                        () => _showQRCode(cylinder),
+                      ),
+                    ),
+                    const SizedBox(width: AppSpacing.sm),
+                  ],
                   Expanded(
                     child: _buildActionButton(
                       'View Details',
@@ -555,6 +565,13 @@ class _CylindersScreenState extends State<CylindersScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  void _showQRCode(CylinderModel cylinder) {
+    showDialog(
+      context: context,
+      builder: (context) => QRCodeDisplayWidget(cylinder: cylinder),
     );
   }
 }
